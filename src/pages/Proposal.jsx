@@ -67,15 +67,32 @@ Looking forward to hearing from you!`)
                 ✨ Anything New About You?
               </button>
             </div>
-{activeTab === 'extra' && (
-  <textarea
-    rows={4}
-    value={extraDetails}
-    onChange={(e) => setExtraDetails(e.target.value)}
-    placeholder="Learnt something new? Just finished a relevant project? Have a special offer for this client? Tell us anything you'd like included in this proposal..."
-  />
-)}
 
+            {activeTab === 'profile' && (
+              <div style={{
+                padding: '14px 16px', borderRadius: '10px',
+                background: 'rgba(243,159,90,0.08)',
+                border: '1px solid rgba(243,159,90,0.15)'
+              }}>
+                <p style={{ color: '#F39F5A', fontSize: '13px', fontWeight: 600, marginBottom: '4px' }}>
+                  ✅ Using your saved profile
+                </p>
+                <p style={{ color: '#E8BCB9', fontSize: '12px', opacity: 0.6 }}>
+                  Your proposal will be generated based on the profile you set up in Profile Analyzer.
+                </p>
+              </div>
+            )}
+
+            {activeTab === 'extra' && (
+              <div>
+                <textarea
+                  rows={4}
+                  value={extraDetails}
+                  onChange={(e) => setExtraDetails(e.target.value)}
+                  placeholder="Learnt something new? Just finished a relevant project? Have a special offer for this client? Tell us anything you'd like included in this proposal..."
+                />
+              </div>
+            )}
           </div>
 
           {/* Tone Selector */}

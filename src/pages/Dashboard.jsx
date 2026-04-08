@@ -3,6 +3,11 @@ import { useNavigate } from 'react-router-dom'
 function Dashboard() {
   const navigate = useNavigate()
 
+  // Read user from localStorage
+  const raw = localStorage.getItem('gigready_user')
+  const user = raw ? JSON.parse(raw) : null
+  const firstName = user?.fullName ? user.fullName.split(' ')[0] : 'there'
+
   return (
     <div style={{ minHeight: '100vh', padding: '40px 24px' }}>
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
@@ -13,7 +18,7 @@ function Dashboard() {
             Good to see you 👋
           </p>
           <h1 style={{ fontSize: '36px', fontWeight: 800, color: 'white', marginBottom: '6px' }}>
-            Welcome back, Ahmed
+            Welcome back, {firstName}
           </h1>
           <p style={{ color: '#E8BCB9', opacity: 0.6 }}>Ready to win your next freelance project?</p>
         </div>

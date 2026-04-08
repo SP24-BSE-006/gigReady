@@ -7,12 +7,11 @@ import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
 import Profile from './pages/Profile'
 import Proposal from './pages/Proposal'
+import MyProfile from './pages/myprofile'
 
 function App() {
   const location = useLocation()
-  const isAppPage = location.pathname === '/dashboard' || 
-                    location.pathname === '/profile' || 
-                    location.pathname === '/proposal'
+  const isAppPage = ['/dashboard', '/profile', '/proposal', '/myprofile'].includes(location.pathname)
 
   return (
     <div style={{ display: 'flex' }}>
@@ -33,6 +32,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/proposal" element={<Proposal />} />
+          <Route path="/myprofile" element={<MyProfile />} />
         </Routes>
 
       </div>
