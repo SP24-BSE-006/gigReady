@@ -20,69 +20,40 @@ function Signup() {
     if (!form.fullName || !form.email || !form.password) return setError('Please fill in all fields.')
     if (form.password.length < 8) return setError('Password must be at least 8 characters.')
     if (form.password !== form.confirmPassword) return setError('Passwords do not match.')
-    setError('')
-    setStep(2)
+    setError(''); setStep(2)
   }
 
   const handleStep2 = () => {
     if (!form.niche || !form.experienceLevel || !form.platform) return setError('Please fill in all fields.')
-    setError('')
-    setStep(3)
+    setError(''); setStep(3)
   }
 
   const handleCreateAccount = async () => {
     if (!form.agreedToTerms) return setError('Please agree to the Terms of Service.')
-    setLoading(true)
-    setError('')
-
-    // 1. Create auth user
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email: form.email,
-      password: form.password,
-    })
-
-    if (signUpError) {
-      setError(signUpError.message)
-      setLoading(false)
-      return
-    }
-
-    // 2. Save profile to database
+    setLoading(true); setError('')
+    const { data, error: signUpError } = await supabase.auth.signUp({ email: form.email, password: form.password })
+    if (signUpError) { setError(signUpError.message); setLoading(false); return }
     const { error: profileError } = await supabase.from('profiles').insert({
-      id: data.user.id,
-      full_name: form.fullName,
-      email: form.email,
-      niche: form.niche,
-      skills: form.skills,
-      experience_level: form.experienceLevel,
-      platform: form.platform,
-      portfolio_url: form.portfolioUrl,
-      bio: form.bio,
+      id: data.user.id, full_name: form.fullName, email: form.email,
+      niche: form.niche, skills: form.skills, experience_level: form.experienceLevel,
+      platform: form.platform, portfolio_url: form.portfolioUrl, bio: form.bio,
     })
-
-    if (profileError) {
-      setError(profileError.message)
-      setLoading(false)
-      return
-    }
-
-    setLoading(false)
-    navigate('/dashboard')
+    if (profileError) { setError(profileError.message); setLoading(false); return }
+    setLoading(false); navigate('/dashboard')
   }
 
   const perks = [
-    { icon: '📊', title: 'Profile Strength Analyzer', desc: 'Get an AI score on your profile with actionable tips to attract more clients.' },
-    { icon: '✍️', title: 'AI Proposal Generator', desc: 'Generate personalized, ready-to-send proposals in seconds.' },
-    { icon: '🎯', title: 'Tone Customization', desc: 'Match your voice to every client — Confident, Friendly, or Formal.' },
-    { icon: '🚀', title: 'Win More Projects', desc: 'Freelancers using GigReady land clients faster and more consistently.' },
+    { icon: '📊', title: 'Profile Strength Analyzer', desc: 'Get an AI score on your profile with actionable tips.' },
+    { icon: '✍️', title: 'AI Proposal Generator', desc: 'Generate personalized proposals in seconds.' },
+    { icon: '🎯', title: 'Tone Customization', desc: 'Match your voice to every client.' },
+    { icon: '🚀', title: 'Win More Projects', desc: 'Land clients faster and more consistently.' },
   ]
 
   const inputStyle = { width: '100%' }
   const selectStyle = {
     background: 'rgba(255,255,255,0.07)', border: '1.5px solid rgba(232,188,185,0.2)',
     color: 'white', borderRadius: '10px', padding: '12px 16px', width: '100%',
-    fontSize: '15px', outline: 'none', cursor: 'pointer', appearance: 'none',
-    WebkitAppearance: 'none',
+    fontSize: '15px', outline: 'none', cursor: 'pointer', appearance: 'none', WebkitAppearance: 'none',
     backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23E8BCB9' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
     backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center',
   }
@@ -98,17 +69,18 @@ function Signup() {
   })
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
-      <div style={{ display: 'flex', gap: '60px', alignItems: 'center', maxWidth: '960px', width: '100%' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 16px' }}>
+      <div style={{ display: 'flex', gap: '60px', alignItems: 'center', maxWidth: '960px', width: '100%', justifyContent: 'center' }}>
 
-        {/* Left — perks */}
-        <div style={{ flex: 1, display: 'none' }} className="hidden-mobile">
+        {/* Left perks — desktop only */}
+        <div className="hidden-mobile" style={{ flex: 1 }}>
           <div style={{ display: 'inline-block', background: 'rgba(243,159,90,0.15)', border: '1px solid rgba(243,159,90,0.3)', borderRadius: '999px', padding: '5px 16px', marginBottom: '20px' }}>
+            <span style={{ color: '#F39F5A', fontSize: '13px', fontWeight: 600 }}>✨ Free to get started</span>
           </div>
-          <h2 style={{ fontSize: '36px', fontWeight: 800, color: 'white', lineHeight: 1.2, marginBottom: '12px' }}>
+          <h2 style={{ fontSize: 'clamp(24px, 3vw, 36px)', fontWeight: 800, color: 'white', lineHeight: 1.2, marginBottom: '12px' }}>
             Your freelance career<br />starts <span className="gradient-text">here.</span>
           </h2>
-          <p style={{ color: '#E8BCB9', opacity: 0.7, fontSize: '15px', lineHeight: 1.7, marginBottom: '36px' }}>
+          <p style={{ color: 'white', opacity: 0.7, fontSize: '15px', lineHeight: 1.7, marginBottom: '36px' }}>
             Join thousands of freelancers who use GigReady to write better proposals and land more clients every week.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -124,11 +96,11 @@ function Signup() {
           </div>
         </div>
 
-        {/* Right — form */}
+        {/* Right form */}
         <div style={{ flex: 1, maxWidth: '420px', width: '100%' }}>
           <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-            <h2 style={{ fontSize: '28px', fontWeight: 800, color: 'white', marginBottom: '6px' }}>Create Account</h2>
-            <p style={{ color: '#E8BCB9', opacity: 0.7, fontSize: '14px' }}>Start winning more freelance projects today</p>
+            <h2 style={{ fontSize: 'clamp(22px, 4vw, 28px)', fontWeight: 800, color: 'white', marginBottom: '6px' }}>Create Account</h2>
+            <p style={{ color: 'white', opacity: 0.7, fontSize: '14px' }}>Start winning more freelance projects today</p>
           </div>
 
           {/* Step indicator */}
@@ -140,16 +112,14 @@ function Signup() {
             <div style={stepDotStyle(3)}>3</div>
           </div>
 
-          {/* Error message */}
           {error && (
             <div style={{ background: 'rgba(252,129,129,0.15)', border: '1px solid rgba(252,129,129,0.3)', borderRadius: '10px', padding: '12px 16px', marginBottom: '16px' }}>
-              <p style={{ color: '#FC8181', fontSize: '14px', margin: 0 }}> {error}</p>
+              <p style={{ color: '#FC8181', fontSize: '14px', margin: 0 }}>⚠️ {error}</p>
             </div>
           )}
 
-          <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+          <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: 'clamp(20px, 4vw, 32px)' }}>
 
-            {/* Step 1 */}
             {step === 1 && (
               <>
                 <p style={{ color: '#F39F5A', fontSize: '12px', fontWeight: 700, letterSpacing: '1px', margin: 0 }}>STEP 1 — PERSONAL INFO</p>
@@ -169,21 +139,20 @@ function Signup() {
                   <label style={labelStyle}>Confirm Password</label>
                   <input type="password" placeholder="Repeat your password" style={inputStyle} value={form.confirmPassword} onChange={e => update('confirmPassword', e.target.value)} />
                 </div>
-                <button onClick={handleStep1} className="btn-primary w-full" style={{ padding: '14px', fontSize: '15px', marginTop: '4px' }}>Continue →</button>
+                <button onClick={handleStep1} className="btn-primary" style={{ padding: '14px', fontSize: '15px', width: '100%' }}>Continue →</button>
               </>
             )}
 
-            {/* Step 2 */}
             {step === 2 && (
               <>
                 <p style={{ color: '#F39F5A', fontSize: '12px', fontWeight: 700, letterSpacing: '1px', margin: 0 }}>STEP 2 — FREELANCER PROFILE</p>
                 <div>
                   <label style={labelStyle}>Your Niche / Title</label>
-                  <input type="text" placeholder="e.g. Full Stack Developer, Graphic Designer" style={inputStyle} value={form.niche} onChange={e => update('niche', e.target.value)} />
+                  <input type="text" placeholder="e.g. Full Stack Developer" style={inputStyle} value={form.niche} onChange={e => update('niche', e.target.value)} />
                 </div>
                 <div>
                   <label style={labelStyle}>Top Skills</label>
-                  <input type="text" placeholder="e.g. React, Figma, Python, WordPress" style={inputStyle} value={form.skills} onChange={e => update('skills', e.target.value)} />
+                  <input type="text" placeholder="e.g. React, Figma, Python" style={inputStyle} value={form.skills} onChange={e => update('skills', e.target.value)} />
                   <p style={{ color: '#E8BCB9', fontSize: '11px', opacity: 0.5, marginTop: '5px' }}>Separate skills with commas</p>
                 </div>
                 <div>
@@ -203,7 +172,7 @@ function Signup() {
                     <option value="Fiverr" style={{ background: '#1D1A39' }}>Fiverr</option>
                     <option value="Freelancer.com" style={{ background: '#1D1A39' }}>Freelancer.com</option>
                     <option value="Toptal" style={{ background: '#1D1A39' }}>Toptal</option>
-                    <option value="Other" style={{ background: '#1D1A39' }}>Other / Not yet on any</option>
+                    <option value="Other" style={{ background: '#1D1A39' }}>Other</option>
                   </select>
                 </div>
                 <div style={{ display: 'flex', gap: '10px' }}>
@@ -213,18 +182,16 @@ function Signup() {
               </>
             )}
 
-            {/* Step 3 */}
             {step === 3 && (
               <>
                 <p style={{ color: '#F39F5A', fontSize: '12px', fontWeight: 700, letterSpacing: '1px', margin: 0 }}>STEP 3 — FINISHING UP</p>
                 <div>
-                  <label style={labelStyle}>Portfolio / LinkedIn URL <span style={{ color: 'rgba(232,188,185,0.4)', fontWeight: 400, marginLeft: '6px' }}>(optional)</span></label>
+                  <label style={labelStyle}>Portfolio / LinkedIn URL <span style={{ color: 'rgba(232,188,185,0.4)', fontWeight: 400 }}>(optional)</span></label>
                   <input type="text" placeholder="https://yourportfolio.com" style={inputStyle} value={form.portfolioUrl} onChange={e => update('portfolioUrl', e.target.value)} />
                 </div>
                 <div>
-                  <label style={labelStyle}>Brief Bio <span style={{ color: 'rgba(232,188,185,0.4)', fontWeight: 400, marginLeft: '6px' }}>(optional)</span></label>
+                  <label style={labelStyle}>Brief Bio <span style={{ color: 'rgba(232,188,185,0.4)', fontWeight: 400 }}>(optional)</span></label>
                   <textarea rows={3} placeholder="Tell clients a bit about yourself..." style={{ width: '100%', resize: 'vertical' }} value={form.bio} onChange={e => update('bio', e.target.value)} />
-                  <p style={{ color: '#E8BCB9', fontSize: '11px', opacity: 0.5, marginTop: '5px' }}>This will be used when generating your proposals</p>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
                   <input type="checkbox" id="terms" style={{ width: '16px', height: '16px', marginTop: '2px', flexShrink: 0, cursor: 'pointer' }} checked={form.agreedToTerms} onChange={e => update('agreedToTerms', e.target.checked)} />

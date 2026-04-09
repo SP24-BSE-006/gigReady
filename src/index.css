@@ -96,3 +96,23 @@ input:focus, textarea:focus {
     width: 100% !important;
   }
 }
+
+/* ===== RESPONSIVE ===== */
+
+.desktop-sidebar { display: flex; }
+.mobile-topbar { display: none !important; }
+.app-main-content { margin-left: 240px; }
+
+@media (max-width: 768px) {
+  .desktop-sidebar { display: none !important; }
+  .mobile-topbar { display: flex !important; }
+  .app-main-content { margin-left: 0 !important; padding-top: 60px; }
+
+  /* Stack grids on mobile */
+  .card { padding: 20px !important; }
+}
+
+@media (max-width: 480px) {
+  h1 { font-size: 28px !important; }
+  h2 { font-size: 24px !important; }
+}

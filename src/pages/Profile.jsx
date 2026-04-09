@@ -17,13 +17,9 @@ function Profile() {
   useEffect(() => {
     if (profile) {
       setForm({
-        fullName: profile.full_name || '',
-        niche: profile.niche || '',
-        skills: profile.skills || '',
-        experienceLevel: profile.experience_level || '',
-        platform: profile.platform || '',
-        portfolioUrl: profile.portfolio_url || '',
-        bio: profile.bio || '',
+        fullName: profile.full_name || '', niche: profile.niche || '',
+        skills: profile.skills || '', experienceLevel: profile.experience_level || '',
+        platform: profile.platform || '', portfolioUrl: profile.portfolio_url || '', bio: profile.bio || '',
       })
     }
   }, [profile])
@@ -31,19 +27,12 @@ function Profile() {
   const handleAnalyze = async () => {
     setSaving(true)
     const { error } = await supabase.from('profiles').update({
-      full_name: form.fullName,
-      niche: form.niche,
-      skills: form.skills,
-      experience_level: form.experienceLevel,
-      platform: form.platform,
-      portfolio_url: form.portfolioUrl,
-      bio: form.bio,
+      full_name: form.fullName, niche: form.niche, skills: form.skills,
+      experience_level: form.experienceLevel, platform: form.platform,
+      portfolio_url: form.portfolioUrl, bio: form.bio,
       updated_at: new Date().toISOString(),
     }).eq('id', user.id)
-    if (!error) {
-      await refreshProfile()
-      setScore(73)
-    }
+    if (!error) { await refreshProfile(); setScore(73) }
     setSaving(false)
   }
 
@@ -59,20 +48,23 @@ function Profile() {
   const skillTags = form.skills ? form.skills.split(',').map(s => s.trim()).filter(Boolean) : []
 
   return (
-    <div style={{ minHeight: '100vh', padding: '40px 24px' }}>
+    <div style={{ minHeight: '100vh', padding: 'clamp(24px, 4vw, 40px) clamp(16px, 3vw, 24px)' }}>
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
 
         <div style={{ marginBottom: '28px' }}>
           <p style={{ color: '#F39F5A', fontSize: '13px', fontWeight: 600, marginBottom: '4px' }}>AI-Powered</p>
-          <h2 style={{ fontSize: '32px', fontWeight: 800, color: 'white', marginBottom: '6px' }}>Profile Analyzer</h2>
-          <p style={{ color: '#E8BCB9', opacity: 0.6 }}>Your saved profile is loaded below — update anything and run the analysis.</p>
+          <h2 style={{ fontSize: 'clamp(24px, 5vw, 32px)', fontWeight: 800, color: 'white', marginBottom: '6px' }}>Profile Analyzer</h2>
+          <p style={{ color: 'white', opacity: 0.6 }}>Your saved profile is loaded below — update anything and run the analysis.</p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: score ? '1fr 1fr' : '1fr', gap: '24px', alignItems: 'start' }}>
-          <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {/* Stack on mobile, side by side on desktop when score shown */}
+        <div style={{ display: 'grid', gridTemplateColumns: score ? 'repeat(auto-fit, minmax(320px, 1fr))' : '1fr', gap: '24px', alignItems: 'start' }}>
+
+          <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
             <p style={{ color: '#F39F5A', fontSize: '12px', fontWeight: 700, letterSpacing: '1px', margin: 0 }}>YOUR PROFILE</p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            {/* Responsive 2-col → 1-col on small screens */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px' }}>
               <div>
                 <label style={labelStyle}>Full Name</label>
                 <input type="text" placeholder="Ahmed Khan" style={inputStyle} value={form.fullName} onChange={e => update('fullName', e.target.value)} />
@@ -96,7 +88,7 @@ function Profile() {
               )}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px' }}>
               <div>
                 <label style={labelStyle}>Experience Level</label>
                 <select style={selectStyle} value={form.experienceLevel} onChange={e => update('experienceLevel', e.target.value)}>
@@ -129,8 +121,8 @@ function Profile() {
               <textarea rows={3} placeholder="Tell clients about yourself..." style={{ width: '100%', resize: 'vertical' }} value={form.bio} onChange={e => update('bio', e.target.value)} />
             </div>
 
-            <button onClick={handleAnalyze} disabled={saving} className="btn-primary w-full" style={{ padding: '14px', fontSize: '16px', opacity: saving ? 0.7 : 1 }}>
-              {saving ? 'Saving & Analyzing...' : 'Analyze My Profile '}
+            <button onClick={handleAnalyze} disabled={saving} className="btn-primary" style={{ padding: '14px', fontSize: '16px', width: '100%', opacity: saving ? 0.7 : 1 }}>
+              {saving ? 'Saving & Analyzing...' : 'Analyze My Profile ✨'}
             </button>
           </div>
 
@@ -139,36 +131,36 @@ function Profile() {
               <div className="card">
                 <p style={{ color: '#F39F5A', fontSize: '12px', fontWeight: 700, letterSpacing: '1px', marginBottom: '16px' }}>YOUR SCORE</p>
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px', marginBottom: '20px' }}>
-                  <span className="gradient-text" style={{ fontSize: '80px', fontWeight: 800, lineHeight: 1 }}>{score}</span>
-                  <span style={{ color: '#E8BCB9', fontSize: '28px', marginBottom: '10px', opacity: 0.4 }}>/100</span>
+                  <span className="gradient-text" style={{ fontSize: 'clamp(56px, 10vw, 80px)', fontWeight: 800, lineHeight: 1 }}>{score}</span>
+                  <span style={{ color: '#E8BCB9', fontSize: '24px', marginBottom: '8px', opacity: 0.4 }}>/100</span>
                 </div>
                 <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: '999px', height: '8px', marginBottom: '20px' }}>
                   <div style={{ width: `${score}%`, height: '100%', borderRadius: '999px', background: 'linear-gradient(135deg, #F39F5A, #AE445A)', transition: 'width 1s ease' }} />
                 </div>
-                <p style={{ color: '#E8BCB9', fontSize: '13px', opacity: 0.6, lineHeight: 1.6 }}>
+                <p style={{ color: 'white', fontSize: '13px', opacity: 0.6, lineHeight: 1.6 }}>
                   Your profile is <strong style={{ color: '#F39F5A' }}>good</strong> but has room for improvement.
                 </p>
               </div>
 
               <div className="card">
                 <p style={{ color: '#F39F5A', fontSize: '12px', fontWeight: 700, letterSpacing: '1px', marginBottom: '16px' }}>FEEDBACK</p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {[
-                    {  text: "Your bio doesn't clearly mention your niche or target client." },
-                    {  text: "Add at least 3 specific skills instead of general ones." },
-                    {  text: "Mention one specific past project result in your bio." },
-                    {  text: "Portfolio link is present — great for credibility." },
-                    {  text: "Experience level is set — helps match you to the right jobs." },
+                    { icon: '❌', text: "Your bio doesn't clearly mention your niche or target client." },
+                    { icon: '⚠️', text: "Add at least 3 specific skills instead of general ones." },
+                    { icon: '⚠️', text: "Mention one specific past project result in your bio." },
+                    { icon: '✅', text: "Portfolio link is present — great for credibility." },
+                    { icon: '✅', text: "Experience level is set — helps match you to the right jobs." },
                   ].map((item, i) => (
-                    <div key={i} style={{ display: 'flex', gap: '10px', padding: '12px 14px', background: 'rgba(255,255,255,0.04)', borderRadius: '10px' }}>
-                      <span>{item.icon}</span>
+                    <div key={i} style={{ display: 'flex', gap: '10px', padding: '10px 12px', background: 'rgba(255,255,255,0.04)', borderRadius: '10px' }}>
+                      <span style={{ flexShrink: 0 }}>{item.icon}</span>
                       <p style={{ color: '#E8BCB9', fontSize: '13px', lineHeight: 1.6, margin: 0 }}>{item.text}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <button onClick={() => navigate('/proposal')} className="btn-primary w-full" style={{ padding: '14px', fontSize: '15px' }}>
+              <button onClick={() => navigate('/proposal')} className="btn-primary" style={{ padding: '14px', fontSize: '15px', width: '100%' }}>
                 Now Generate a Proposal →
               </button>
             </div>

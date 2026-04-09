@@ -1,7 +1,7 @@
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Sidebar from './components/sidebar'
-import Landing from './pages/landing'
+import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
@@ -29,14 +29,7 @@ function App() {
   return (
     <div style={{ display: 'flex' }}>
       {isAppPage && <Sidebar />}
-      <div
-        className="sidebar-wrap"
-        style={{
-          flex: 1,
-          marginLeft: isAppPage ? '240px' : '0',
-          minHeight: '100vh',
-          width: isAppPage ? 'calc(100% - 240px)' : '100%'
-        }}>
+      <div className={isAppPage ? 'app-main-content' : ''} style={{ flex: 1, minHeight: '100vh' }}>
         {!isAppPage && <Navbar />}
         <Routes>
           <Route path="/" element={<Landing />} />
