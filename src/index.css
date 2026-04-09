@@ -72,3 +72,27 @@ input:focus, textarea:focus {
     display: block !important;
   }
 }
+
+
+@media (max-width: 768px) {
+  .hidden-mobile {
+    display: none !important;
+  }
+
+  .hidden-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .hidden-mobile {
+    display: block !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .sidebar-wrap {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+}

@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Sidebar from './components/sidebar'
 import Landing from './pages/landing'
@@ -8,6 +8,19 @@ import Dashboard from './pages/Dashboard'
 import Profile from './pages/Profile'
 import Proposal from './pages/Proposal'
 import MyProfile from './pages/myprofile'
+import { useAuth } from './context/AuthContext'
+
+function PrivateRoute({ children }) {
+  const auth = useAuth()
+  if (!auth) return null
+  const { user, loading } = auth
+  if (loading) return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <p style={{ color: '#F39F5A', fontSize: '18px', fontWeight: 600 }}>Loading...</p>
+    </div>
+  )
+  return user ? children : <Navigate to="/login" />
+}
 
 function App() {
   const location = useLocation()
@@ -15,26 +28,25 @@ function App() {
 
   return (
     <div style={{ display: 'flex' }}>
-
       {isAppPage && <Sidebar />}
-
-      <div style={{
-        flex: 1,
-        marginLeft: isAppPage ? '240px' : '0',
-        minHeight: '100vh'
-      }}>
+      <div
+        className="sidebar-wrap"
+        style={{
+          flex: 1,
+          marginLeft: isAppPage ? '240px' : '0',
+          minHeight: '100vh',
+          width: isAppPage ? 'calc(100% - 240px)' : '100%'
+        }}>
         {!isAppPage && <Navbar />}
-
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/proposal" element={<Proposal />} />
-          <Route path="/myprofile" element={<MyProfile />} />
+          <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+          <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+          <Route path="/proposal" element={<PrivateRoute><Proposal /></PrivateRoute>} />
+          <Route path="/myprofile" element={<PrivateRoute><MyProfile /></PrivateRoute>} />
         </Routes>
-
       </div>
     </div>
   )

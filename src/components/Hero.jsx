@@ -27,9 +27,6 @@ function Hero() {
           border: '1px solid rgba(243,159,90,0.3)',
           borderRadius: '999px', padding: '6px 20px', marginBottom: '28px'
         }}>
-          <span style={{ color: '#F39F5A', fontSize: '14px', fontWeight: 600 }}>
-            ✨ AI-Powered Freelancer Toolkit
-          </span>
         </div>
 
         <h1 style={{

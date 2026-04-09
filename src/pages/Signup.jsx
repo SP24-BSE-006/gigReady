@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '../supabaseClient'
 
 function Signup() {
   const navigate = useNavigate()
   const [step, setStep] = useState(1)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  // All form data in one state object
   const [form, setForm] = useState({
     fullName: '', email: '', password: '', confirmPassword: '',
     niche: '', skills: '', experienceLevel: '', platform: '',
@@ -14,19 +16,57 @@ function Signup() {
 
   const update = (field, value) => setForm(prev => ({ ...prev, [field]: value }))
 
-  const handleCreateAccount = () => {
-    // Save profile to localStorage
-    const profile = {
-      fullName: form.fullName,
+  const handleStep1 = () => {
+    if (!form.fullName || !form.email || !form.password) return setError('Please fill in all fields.')
+    if (form.password.length < 8) return setError('Password must be at least 8 characters.')
+    if (form.password !== form.confirmPassword) return setError('Passwords do not match.')
+    setError('')
+    setStep(2)
+  }
+
+  const handleStep2 = () => {
+    if (!form.niche || !form.experienceLevel || !form.platform) return setError('Please fill in all fields.')
+    setError('')
+    setStep(3)
+  }
+
+  const handleCreateAccount = async () => {
+    if (!form.agreedToTerms) return setError('Please agree to the Terms of Service.')
+    setLoading(true)
+    setError('')
+
+    // 1. Create auth user
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email: form.email,
+      password: form.password,
+    })
+
+    if (signUpError) {
+      setError(signUpError.message)
+      setLoading(false)
+      return
+    }
+
+    // 2. Save profile to database
+    const { error: profileError } = await supabase.from('profiles').insert({
+      id: data.user.id,
+      full_name: form.fullName,
       email: form.email,
       niche: form.niche,
       skills: form.skills,
-      experienceLevel: form.experienceLevel,
+      experience_level: form.experienceLevel,
       platform: form.platform,
-      portfolioUrl: form.portfolioUrl,
+      portfolio_url: form.portfolioUrl,
       bio: form.bio,
+    })
+
+    if (profileError) {
+      setError(profileError.message)
+      setLoading(false)
+      return
     }
-    localStorage.setItem('gigready_user', JSON.stringify(profile))
+
+    setLoading(false)
     navigate('/dashboard')
   }
 
@@ -38,26 +78,15 @@ function Signup() {
   ]
 
   const inputStyle = { width: '100%' }
-
   const selectStyle = {
-    background: 'rgba(255,255,255,0.07)',
-    border: '1.5px solid rgba(232,188,185,0.2)',
-    color: 'white',
-    borderRadius: '10px',
-    padding: '12px 16px',
-    width: '100%',
-    fontSize: '15px',
-    outline: 'none',
-    cursor: 'pointer',
-    appearance: 'none',
+    background: 'rgba(255,255,255,0.07)', border: '1.5px solid rgba(232,188,185,0.2)',
+    color: 'white', borderRadius: '10px', padding: '12px 16px', width: '100%',
+    fontSize: '15px', outline: 'none', cursor: 'pointer', appearance: 'none',
     WebkitAppearance: 'none',
     backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23E8BCB9' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'right 14px center',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center',
   }
-
   const labelStyle = { fontSize: '13px', fontWeight: 600, color: '#E8BCB9', display: 'block', marginBottom: '6px' }
-
   const stepDotStyle = (n) => ({
     width: '28px', height: '28px', borderRadius: '50%',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -72,15 +101,9 @@ function Signup() {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
       <div style={{ display: 'flex', gap: '60px', alignItems: 'center', maxWidth: '960px', width: '100%' }}>
 
-        {/* Left — Value proposition */}
+        {/* Left — perks */}
         <div style={{ flex: 1, display: 'none' }} className="hidden-mobile">
-          <div style={{
-            display: 'inline-block',
-            background: 'rgba(243,159,90,0.15)',
-            border: '1px solid rgba(243,159,90,0.3)',
-            borderRadius: '999px', padding: '5px 16px', marginBottom: '20px'
-          }}>
-            <span style={{ color: '#F39F5A', fontSize: '13px', fontWeight: 600 }}>✨ Free to get started</span>
+          <div style={{ display: 'inline-block', background: 'rgba(243,159,90,0.15)', border: '1px solid rgba(243,159,90,0.3)', borderRadius: '999px', padding: '5px 16px', marginBottom: '20px' }}>
           </div>
           <h2 style={{ fontSize: '36px', fontWeight: 800, color: 'white', lineHeight: 1.2, marginBottom: '12px' }}>
             Your freelance career<br />starts <span className="gradient-text">here.</span>
@@ -91,11 +114,7 @@ function Signup() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {perks.map((perk, i) => (
               <div key={i} style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
-                <div style={{
-                  width: '40px', height: '40px', borderRadius: '12px', flexShrink: 0,
-                  background: 'rgba(243,159,90,0.15)', border: '1px solid rgba(243,159,90,0.2)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px'
-                }}>{perk.icon}</div>
+                <div style={{ width: '40px', height: '40px', borderRadius: '12px', flexShrink: 0, background: 'rgba(243,159,90,0.15)', border: '1px solid rgba(243,159,90,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>{perk.icon}</div>
                 <div>
                   <p style={{ color: 'white', fontWeight: 600, fontSize: '15px', marginBottom: '3px' }}>{perk.title}</p>
                   <p style={{ color: '#E8BCB9', opacity: 0.65, fontSize: '13px', lineHeight: 1.6 }}>{perk.desc}</p>
@@ -105,7 +124,7 @@ function Signup() {
           </div>
         </div>
 
-        {/* Right — Signup form */}
+        {/* Right — form */}
         <div style={{ flex: 1, maxWidth: '420px', width: '100%' }}>
           <div style={{ textAlign: 'center', marginBottom: '24px' }}>
             <h2 style={{ fontSize: '28px', fontWeight: 800, color: 'white', marginBottom: '6px' }}>Create Account</h2>
@@ -121,72 +140,64 @@ function Signup() {
             <div style={stepDotStyle(3)}>3</div>
           </div>
 
+          {/* Error message */}
+          {error && (
+            <div style={{ background: 'rgba(252,129,129,0.15)', border: '1px solid rgba(252,129,129,0.3)', borderRadius: '10px', padding: '12px 16px', marginBottom: '16px' }}>
+              <p style={{ color: '#FC8181', fontSize: '14px', margin: 0 }}> {error}</p>
+            </div>
+          )}
+
           <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
 
-            {/* Step 1 — Personal Info */}
+            {/* Step 1 */}
             {step === 1 && (
               <>
-                <p style={{ color: '#F39F5A', fontSize: '12px', fontWeight: 700, letterSpacing: '1px', margin: 0 }}>
-                  STEP 1 — PERSONAL INFO
-                </p>
+                <p style={{ color: '#F39F5A', fontSize: '12px', fontWeight: 700, letterSpacing: '1px', margin: 0 }}>STEP 1 — PERSONAL INFO</p>
                 <div>
                   <label style={labelStyle}>Full Name</label>
-                  <input type="text" placeholder="Ahmed Khan" style={inputStyle}
-                    value={form.fullName} onChange={e => update('fullName', e.target.value)} />
+                  <input type="text" placeholder="Ahmed Khan" style={inputStyle} value={form.fullName} onChange={e => update('fullName', e.target.value)} />
                 </div>
                 <div>
                   <label style={labelStyle}>Email Address</label>
-                  <input type="email" placeholder="ahmed@email.com" style={inputStyle}
-                    value={form.email} onChange={e => update('email', e.target.value)} />
+                  <input type="email" placeholder="ahmed@email.com" style={inputStyle} value={form.email} onChange={e => update('email', e.target.value)} />
                 </div>
                 <div>
                   <label style={labelStyle}>Password</label>
-                  <input type="password" placeholder="Min. 8 characters" style={inputStyle}
-                    value={form.password} onChange={e => update('password', e.target.value)} />
+                  <input type="password" placeholder="Min. 8 characters" style={inputStyle} value={form.password} onChange={e => update('password', e.target.value)} />
                 </div>
                 <div>
                   <label style={labelStyle}>Confirm Password</label>
-                  <input type="password" placeholder="Repeat your password" style={inputStyle}
-                    value={form.confirmPassword} onChange={e => update('confirmPassword', e.target.value)} />
+                  <input type="password" placeholder="Repeat your password" style={inputStyle} value={form.confirmPassword} onChange={e => update('confirmPassword', e.target.value)} />
                 </div>
-                <button onClick={() => setStep(2)} className="btn-primary w-full"
-                  style={{ padding: '14px', fontSize: '15px', marginTop: '4px' }}>
-                  Continue →
-                </button>
+                <button onClick={handleStep1} className="btn-primary w-full" style={{ padding: '14px', fontSize: '15px', marginTop: '4px' }}>Continue →</button>
               </>
             )}
 
-            {/* Step 2 — Freelancer Info */}
+            {/* Step 2 */}
             {step === 2 && (
               <>
-                <p style={{ color: '#F39F5A', fontSize: '12px', fontWeight: 700, letterSpacing: '1px', margin: 0 }}>
-                  STEP 2 — FREELANCER PROFILE
-                </p>
+                <p style={{ color: '#F39F5A', fontSize: '12px', fontWeight: 700, letterSpacing: '1px', margin: 0 }}>STEP 2 — FREELANCER PROFILE</p>
                 <div>
                   <label style={labelStyle}>Your Niche / Title</label>
-                  <input type="text" placeholder="e.g. Full Stack Developer, Graphic Designer" style={inputStyle}
-                    value={form.niche} onChange={e => update('niche', e.target.value)} />
+                  <input type="text" placeholder="e.g. Full Stack Developer, Graphic Designer" style={inputStyle} value={form.niche} onChange={e => update('niche', e.target.value)} />
                 </div>
                 <div>
                   <label style={labelStyle}>Top Skills</label>
-                  <input type="text" placeholder="e.g. React, Figma, Python, WordPress" style={inputStyle}
-                    value={form.skills} onChange={e => update('skills', e.target.value)} />
+                  <input type="text" placeholder="e.g. React, Figma, Python, WordPress" style={inputStyle} value={form.skills} onChange={e => update('skills', e.target.value)} />
                   <p style={{ color: '#E8BCB9', fontSize: '11px', opacity: 0.5, marginTop: '5px' }}>Separate skills with commas</p>
                 </div>
                 <div>
                   <label style={labelStyle}>Experience Level</label>
-                  <select style={selectStyle} value={form.experienceLevel}
-                    onChange={e => update('experienceLevel', e.target.value)}>
+                  <select style={selectStyle} value={form.experienceLevel} onChange={e => update('experienceLevel', e.target.value)}>
                     <option value="" disabled style={{ background: '#1D1A39' }}>Select your level</option>
                     <option value="Beginner" style={{ background: '#1D1A39' }}>Beginner — just starting out</option>
-                    <option value="Intermediate" style={{ background: '#1D1A39' }}>Intermediate — 1–3 years of experience</option>
-                    <option value="Experienced" style={{ background: '#1D1A39' }}>Experienced — 3+ years of experience</option>
+                    <option value="Intermediate" style={{ background: '#1D1A39' }}>Intermediate — 1–3 years</option>
+                    <option value="Experienced" style={{ background: '#1D1A39' }}>Experienced — 3+ years</option>
                   </select>
                 </div>
                 <div>
-                  <label style={labelStyle}>Which platform(s) do you freelance on?</label>
-                  <select style={selectStyle} value={form.platform}
-                    onChange={e => update('platform', e.target.value)}>
+                  <label style={labelStyle}>Primary Platform</label>
+                  <select style={selectStyle} value={form.platform} onChange={e => update('platform', e.target.value)}>
                     <option value="" disabled style={{ background: '#1D1A39' }}>Select primary platform</option>
                     <option value="Upwork" style={{ background: '#1D1A39' }}>Upwork</option>
                     <option value="Fiverr" style={{ background: '#1D1A39' }}>Fiverr</option>
@@ -196,65 +207,35 @@ function Signup() {
                   </select>
                 </div>
                 <div style={{ display: 'flex', gap: '10px' }}>
-                  <button onClick={() => setStep(1)} style={{
-                    flex: 1, padding: '13px', border: '2px solid rgba(232,188,185,0.2)',
-                    color: '#E8BCB9', borderRadius: '12px', fontWeight: 600, fontSize: '14px',
-                    background: 'transparent', cursor: 'pointer'
-                  }}>← Back</button>
-                  <button onClick={() => setStep(3)} className="btn-primary" style={{ flex: 2, padding: '13px', fontSize: '15px' }}>
-                    Continue →
-                  </button>
+                  <button onClick={() => setStep(1)} style={{ flex: 1, padding: '13px', border: '2px solid rgba(232,188,185,0.2)', color: '#E8BCB9', borderRadius: '12px', fontWeight: 600, fontSize: '14px', background: 'transparent', cursor: 'pointer' }}>← Back</button>
+                  <button onClick={handleStep2} className="btn-primary" style={{ flex: 2, padding: '13px', fontSize: '15px' }}>Continue →</button>
                 </div>
               </>
             )}
 
-            {/* Step 3 — Optional extras */}
+            {/* Step 3 */}
             {step === 3 && (
               <>
-                <p style={{ color: '#F39F5A', fontSize: '12px', fontWeight: 700, letterSpacing: '1px', margin: 0 }}>
-                  STEP 3 — FINISHING UP
-                </p>
+                <p style={{ color: '#F39F5A', fontSize: '12px', fontWeight: 700, letterSpacing: '1px', margin: 0 }}>STEP 3 — FINISHING UP</p>
                 <div>
-                  <label style={labelStyle}>
-                    Portfolio / LinkedIn URL
-                    <span style={{ color: 'rgba(232,188,185,0.4)', fontWeight: 400, marginLeft: '6px' }}>(optional)</span>
-                  </label>
-                  <input type="text" placeholder="https://yourportfolio.com" style={inputStyle}
-                    value={form.portfolioUrl} onChange={e => update('portfolioUrl', e.target.value)} />
+                  <label style={labelStyle}>Portfolio / LinkedIn URL <span style={{ color: 'rgba(232,188,185,0.4)', fontWeight: 400, marginLeft: '6px' }}>(optional)</span></label>
+                  <input type="text" placeholder="https://yourportfolio.com" style={inputStyle} value={form.portfolioUrl} onChange={e => update('portfolioUrl', e.target.value)} />
                 </div>
                 <div>
-                  <label style={labelStyle}>
-                    Brief Bio
-                    <span style={{ color: 'rgba(232,188,185,0.4)', fontWeight: 400, marginLeft: '6px' }}>(optional)</span>
-                  </label>
-                  <textarea rows={3}
-                    placeholder="Tell clients a bit about yourself — your background, what you love working on, and what makes you different."
-                    style={{ width: '100%', resize: 'vertical' }}
-                    value={form.bio} onChange={e => update('bio', e.target.value)} />
-                  <p style={{ color: '#E8BCB9', fontSize: '11px', opacity: 0.5, marginTop: '5px' }}>
-                    This will be used when generating your proposals
-                  </p>
+                  <label style={labelStyle}>Brief Bio <span style={{ color: 'rgba(232,188,185,0.4)', fontWeight: 400, marginLeft: '6px' }}>(optional)</span></label>
+                  <textarea rows={3} placeholder="Tell clients a bit about yourself..." style={{ width: '100%', resize: 'vertical' }} value={form.bio} onChange={e => update('bio', e.target.value)} />
+                  <p style={{ color: '#E8BCB9', fontSize: '11px', opacity: 0.5, marginTop: '5px' }}>This will be used when generating your proposals</p>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                  <input type="checkbox" id="terms"
-                    style={{ width: '16px', height: '16px', marginTop: '2px', flexShrink: 0, cursor: 'pointer' }}
-                    checked={form.agreedToTerms} onChange={e => update('agreedToTerms', e.target.checked)} />
+                  <input type="checkbox" id="terms" style={{ width: '16px', height: '16px', marginTop: '2px', flexShrink: 0, cursor: 'pointer' }} checked={form.agreedToTerms} onChange={e => update('agreedToTerms', e.target.checked)} />
                   <label htmlFor="terms" style={{ fontSize: '13px', color: '#E8BCB9', opacity: 0.7, lineHeight: 1.5, cursor: 'pointer' }}>
-                    I agree to the{' '}
-                    <span style={{ color: '#F39F5A', fontWeight: 600 }}>Terms of Service</span>
-                    {' '}and{' '}
-                    <span style={{ color: '#F39F5A', fontWeight: 600 }}>Privacy Policy</span>
+                    I agree to the <span style={{ color: '#F39F5A', fontWeight: 600 }}>Terms of Service</span> and <span style={{ color: '#F39F5A', fontWeight: 600 }}>Privacy Policy</span>
                   </label>
                 </div>
                 <div style={{ display: 'flex', gap: '10px' }}>
-                  <button onClick={() => setStep(2)} style={{
-                    flex: 1, padding: '13px', border: '2px solid rgba(232,188,185,0.2)',
-                    color: '#E8BCB9', borderRadius: '12px', fontWeight: 600, fontSize: '14px',
-                    background: 'transparent', cursor: 'pointer'
-                  }}>← Back</button>
-                  <button onClick={handleCreateAccount} className="btn-primary"
-                    style={{ flex: 2, padding: '13px', fontSize: '15px' }}>
-                    Create Account →
+                  <button onClick={() => setStep(2)} style={{ flex: 1, padding: '13px', border: '2px solid rgba(232,188,185,0.2)', color: '#E8BCB9', borderRadius: '12px', fontWeight: 600, fontSize: '14px', background: 'transparent', cursor: 'pointer' }}>← Back</button>
+                  <button onClick={handleCreateAccount} disabled={loading} className="btn-primary" style={{ flex: 2, padding: '13px', fontSize: '15px', opacity: loading ? 0.7 : 1 }}>
+                    {loading ? 'Creating...' : 'Create Account →'}
                   </button>
                 </div>
               </>
@@ -263,8 +244,7 @@ function Signup() {
 
           <p style={{ textAlign: 'center', color: '#E8BCB9', opacity: 0.6, fontSize: '13px', marginTop: '16px' }}>
             Already have an account?{' '}
-            <span onClick={() => navigate('/login')}
-              style={{ color: '#F39F5A', fontWeight: 700, cursor: 'pointer' }}>Login</span>
+            <span onClick={() => navigate('/login')} style={{ color: '#F39F5A', fontWeight: 700, cursor: 'pointer' }}>Login</span>
           </p>
         </div>
       </div>
