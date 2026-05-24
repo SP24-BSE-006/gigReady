@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { supabase } from '../supabaseClient'
 
 function Proposal() {
   const { profile } = useAuth()
@@ -20,6 +21,18 @@ function Proposal() {
     })
     const data = await res.json()
     setProposal(data.proposal)
+
+    // Save to Supabase
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      await supabase.from('proposals').insert({
+        user_id: user.id,
+        title: jobDescription.substring(0, 60),
+        content: data.proposal,
+        tone: tone,
+        job_description: jobDescription
+      })
+    }
     setLoading(false)
   }
 
@@ -83,7 +96,7 @@ function Proposal() {
 
           <button onClick={handleGenerate} disabled={loading} className="btn-primary"
             style={{ padding: '14px', fontSize: '16px', width: '100%', opacity: loading ? 0.7 : 1 }}>
-            {loading ? 'Generating...' : 'Generate Proposal '}
+            {loading ? 'Generating...' : 'Generate Proposal ✨'}
           </button>
         </div>
 
@@ -97,7 +110,7 @@ function Proposal() {
             <button onClick={() => navigator.clipboard.writeText(proposal)} style={{ marginTop: '20px', width: '100%', padding: '14px', border: '2px solid rgba(243,159,90,0.4)', color: '#F39F5A', borderRadius: '12px', fontWeight: 600, fontSize: '15px', background: 'transparent', cursor: 'pointer', transition: 'all 0.2s' }}
               onMouseEnter={e => e.currentTarget.style.background = 'rgba(243,159,90,0.1)'}
               onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-              Copy Proposal 
+              Copy Proposal 📋
             </button>
           </div>
         )}
