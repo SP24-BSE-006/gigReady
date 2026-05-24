@@ -14,7 +14,11 @@ function Navbar() {
       <h1 className="gradient-text" style={{ fontSize: 'clamp(18px, 4vw, 24px)', fontWeight: 800, cursor: 'pointer', margin: 0 }} onClick={() => navigate('/')}>
         GigReady
       </h1>
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+      <div style={{
+         display: 'flex', 
+         gap: '8px',
+         alignItems: 'center'
+          }}>
         <button onClick={() => navigate('/login')} style={{ color: '#E8BCB9', fontWeight: 600, padding: '8px 16px', background: 'transparent', border: 'none', cursor: 'pointer', borderRadius: '10px', fontSize: 'clamp(13px, 2vw, 15px)' }}>
           Login
         </button>

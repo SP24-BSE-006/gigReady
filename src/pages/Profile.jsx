@@ -7,6 +7,7 @@ function Profile() {
   const navigate = useNavigate()
   const { user, profile, refreshProfile } = useAuth()
   const [score, setScore] = useState(null)
+  const [feedback, setFeedback] = useState(null)
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({
     fullName: '', niche: '', skills: '', experienceLevel: '', platform: '', portfolioUrl: '', bio: ''
@@ -32,7 +33,26 @@ function Profile() {
       portfolio_url: form.portfolioUrl, bio: form.bio,
       updated_at: new Date().toISOString(),
     }).eq('id', user.id)
-    if (!error) { await refreshProfile(); setScore(73) }
+    if (!error) {
+  await refreshProfile()
+  const aiRes = await fetch('http://localhost:5000/api/analyze', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      fullName: form.fullName,
+      niche: form.niche,
+      skills: form.skills,
+      experienceLevel: form.experienceLevel,
+      platform: form.platform,
+      portfolioUrl: form.portfolioUrl,
+      bio: form.bio
+    })
+  })
+  const data = await aiRes.json()
+  console.log('AI response:', data)
+  setScore(data.score)
+  setFeedback(data.feedback)
+}
     setSaving(false)
   }
 
@@ -122,7 +142,7 @@ function Profile() {
             </div>
 
             <button onClick={handleAnalyze} disabled={saving} className="btn-primary" style={{ padding: '14px', fontSize: '16px', width: '100%', opacity: saving ? 0.7 : 1 }}>
-              {saving ? 'Saving & Analyzing...' : 'Analyze My Profile ✨'}
+              {saving ? 'Saving & Analyzing...' : 'Analyze My Profile '}
             </button>
           </div>
 
@@ -145,18 +165,11 @@ function Profile() {
               <div className="card">
                 <p style={{ color: '#F39F5A', fontSize: '12px', fontWeight: 700, letterSpacing: '1px', marginBottom: '16px' }}>FEEDBACK</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {[
-                    { icon: '❌', text: "Your bio doesn't clearly mention your niche or target client." },
-                    { icon: '⚠️', text: "Add at least 3 specific skills instead of general ones." },
-                    { icon: '⚠️', text: "Mention one specific past project result in your bio." },
-                    { icon: '✅', text: "Portfolio link is present — great for credibility." },
-                    { icon: '✅', text: "Experience level is set — helps match you to the right jobs." },
-                  ].map((item, i) => (
-                    <div key={i} style={{ display: 'flex', gap: '10px', padding: '10px 12px', background: 'rgba(255,255,255,0.04)', borderRadius: '10px' }}>
-                      <span style={{ flexShrink: 0 }}>{item.icon}</span>
-                      <p style={{ color: '#E8BCB9', fontSize: '13px', lineHeight: 1.6, margin: 0 }}>{item.text}</p>
-                    </div>
-                  ))}
+         {(feedback || []).map((text, i) => (
+  <div key={i} style={{ display: 'flex', gap: '10px', padding: '10px 12px', background: 'rgba(255,255,255,0.04)', borderRadius: '10px' }}>
+    <p style={{ color: '#E8BCB9', fontSize: '13px', lineHeight: 1.6, margin: 0 }}>{text}</p>
+  </div>
+))}
                 </div>
               </div>
 

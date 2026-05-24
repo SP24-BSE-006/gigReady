@@ -41,13 +41,13 @@ function Login() {
 
         {error && (
           <div style={{ background: 'rgba(252,129,129,0.15)', border: '1px solid rgba(252,129,129,0.3)', borderRadius: '10px', padding: '12px 16px', marginBottom: '16px' }}>
-            <p style={{ color: '#FC8181', fontSize: '14px', margin: 0 }}>⚠️ {error}</p>
+            <p style={{ color: '#FC8181', fontSize: '14px', margin: 0 }}> {error}</p>
           </div>
         )}
 
         {resetSent && (
           <div style={{ background: 'rgba(104,211,145,0.15)', border: '1px solid rgba(104,211,145,0.3)', borderRadius: '10px', padding: '12px 16px', marginBottom: '16px' }}>
-            <p style={{ color: '#68D391', fontSize: '14px', margin: 0 }}>✅ Password reset email sent! Check your inbox.</p>
+            <p style={{ color: '#68D391', fontSize: '14px', margin: 0 }}> Password reset email sent! Check your inbox.</p>
           </div>
         )}
 

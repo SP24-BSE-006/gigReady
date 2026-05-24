@@ -52,13 +52,13 @@ function MyProfile() {
               )}
               {profile.platform && (
                 <span style={{ fontSize: '12px', padding: '4px 12px', borderRadius: '999px', fontWeight: 600, background: 'rgba(174,68,90,0.15)', border: '1px solid rgba(174,68,90,0.3)', color: '#E8BCB9' }}>
-                  📍 {profile.platform}
+                   {profile.platform}
                 </span>
               )}
             </div>
           </div>
           <button onClick={() => navigate('/profile')} className="btn-primary" style={{ padding: '10px 18px', fontSize: '14px', whiteSpace: 'nowrap', width: '100%', maxWidth: '180px' }}>
-            Analyze Profile ✨
+            Analyze Profile 
           </button>
         </div>
 

@@ -75,7 +75,7 @@ function Signup() {
         {/* Left perks — desktop only */}
         <div className="hidden-mobile" style={{ flex: 1 }}>
           <div style={{ display: 'inline-block', background: 'rgba(243,159,90,0.15)', border: '1px solid rgba(243,159,90,0.3)', borderRadius: '999px', padding: '5px 16px', marginBottom: '20px' }}>
-            <span style={{ color: '#F39F5A', fontSize: '13px', fontWeight: 600 }}>✨ Free to get started</span>
+            <span style={{ color: '#F39F5A', fontSize: '13px', fontWeight: 600 }}> Free to get started</span>
           </div>
           <h2 style={{ fontSize: 'clamp(24px, 3vw, 36px)', fontWeight: 800, color: 'white', lineHeight: 1.2, marginBottom: '12px' }}>
             Your freelance career<br />starts <span className="gradient-text">here.</span>

@@ -10,7 +10,6 @@ function Hero() {
 
       <div style={{ position: 'relative', zIndex: 1 }}>
         <div style={{ display: 'inline-block', background: 'rgba(243,159,90,0.15)', border: '1px solid rgba(243,159,90,0.3)', borderRadius: '999px', padding: '6px 20px', marginBottom: '24px' }}>
-          <span style={{ color: '#F39F5A', fontSize: '14px', fontWeight: 600 }}>✨ AI-Powered Freelancer Toolkit</span>
         </div>
 
         <h1 style={{ fontSize: 'clamp(32px, 7vw, 58px)', fontWeight: 800, color: 'white', lineHeight: 1.15, marginBottom: '20px', maxWidth: '680px', margin: '0 auto 20px' }}>

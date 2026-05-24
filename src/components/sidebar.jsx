@@ -12,9 +12,9 @@ function Sidebar() {
   const avatarLetter = profile?.full_name ? profile.full_name.charAt(0).toUpperCase() : '?'
 
   const menuItems = [
-    { icon: '🏠', label: 'Dashboard', path: '/dashboard' },
-    { icon: '📊', label: 'Profile Analyzer', path: '/profile' },
-    { icon: '✍️', label: 'Generate Proposal', path: '/proposal' },
+    {  label: 'Dashboard', path: '/dashboard' },
+    { label: 'Profile Analyzer', path: '/profile' },
+    {  label: 'Generate Proposal', path: '/proposal' },
   ]
 
   const isActive = (path) => location.pathname === path

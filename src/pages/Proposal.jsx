@@ -1,20 +1,26 @@
 import { useState } from 'react'
+import { useAuth } from '../context/AuthContext'
 
 function Proposal() {
+  const { profile } = useAuth()
   const [jobDescription, setJobDescription] = useState('')
   const [tone, setTone] = useState('friendly')
   const [proposal, setProposal] = useState(null)
   const [activeTab, setActiveTab] = useState('profile')
   const [extraDetails, setExtraDetails] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleGenerate = () => {
-    setProposal(`Hi! I came across your job post and I'm genuinely excited about this opportunity.
-
-Based on my experience and the specific requirements you've mentioned, I believe I'm a strong fit for this project. I've worked on similar projects before and understand exactly what you're looking for.
-
-I'd love to discuss this further and share some relevant examples of my past work. I'm available to start immediately and can deliver within your timeline.
-
-Looking forward to hearing from you!`)
+  const handleGenerate = async () => {
+    if (!jobDescription) return
+    setLoading(true)
+    const res = await fetch('http://localhost:5000/api/proposal', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ jobDescription, tone, profile, extraDetails })
+    })
+    const data = await res.json()
+    setProposal(data.proposal)
+    setLoading(false)
   }
 
   const tabStyle = (tab) => ({
@@ -41,18 +47,16 @@ Looking forward to hearing from you!`)
           <div>
             <label style={{ fontSize: '13px', fontWeight: 600, color: '#E8BCB9', display: 'block', marginBottom: '10px' }}>About You</label>
             <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', padding: '4px', marginBottom: '14px', border: '1px solid rgba(232,188,185,0.1)' }}>
-              <button onClick={() => setActiveTab('profile')} style={tabStyle('profile')}>👤 My Profile</button>
-              <button onClick={() => setActiveTab('extra')} style={tabStyle('extra')}>✨ Anything New?</button>
+              <button onClick={() => setActiveTab('profile')} style={tabStyle('profile')}> My Profile</button>
+              <button onClick={() => setActiveTab('extra')} style={tabStyle('extra')}> Anything New?</button>
             </div>
-            {activeTab === 'profile' && (
-              <div style={{ padding: '12px 14px', borderRadius: '10px', background: 'rgba(243,159,90,0.08)', border: '1px solid rgba(243,159,90,0.15)' }}>
-                <p style={{ color: '#F39F5A', fontSize: '13px', fontWeight: 600, marginBottom: '4px' }}>✅ Using your saved profile</p>
-                <p style={{ color: '#E8BCB9', fontSize: '12px', opacity: 0.6, margin: 0 }}>Your proposal will be generated based on your Profile Analyzer data.</p>
-              </div>
-            )}
             {activeTab === 'extra' && (
-              <textarea rows={4} value={extraDetails} onChange={(e) => setExtraDetails(e.target.value)}
-                placeholder="Learnt something new? Just finished a relevant project? Tell us anything you'd like included..." />
+              <textarea
+                rows={4}
+                value={extraDetails}
+                onChange={(e) => setExtraDetails(e.target.value)}
+                placeholder="Learnt something new? Just finished a relevant project? Have a special offer for this client? Tell us anything you'd like included in this proposal..."
+              />
             )}
           </div>
 
@@ -60,9 +64,9 @@ Looking forward to hearing from you!`)
             <label style={{ fontSize: '13px', fontWeight: 600, color: '#E8BCB9', display: 'block', marginBottom: '10px' }}>Select Tone</label>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
               {[
-                { value: 'confident', label: '💪 Confident' },
-                { value: 'friendly', label: '😊 Friendly' },
-                { value: 'formal', label: '🎩 Formal' },
+                { value: 'confident', label: ' Confident' },
+                { value: 'friendly', label: ' Friendly' },
+                { value: 'formal', label: ' Formal' },
               ].map((option) => (
                 <button key={option.value} onClick={() => setTone(option.value)} style={{
                   padding: 'clamp(8px, 2vw, 12px) 8px', borderRadius: '10px', fontWeight: 600,
@@ -77,8 +81,9 @@ Looking forward to hearing from you!`)
             </div>
           </div>
 
-          <button onClick={handleGenerate} className="btn-primary" style={{ padding: '14px', fontSize: '16px', width: '100%' }}>
-            Generate Proposal ✨
+          <button onClick={handleGenerate} disabled={loading} className="btn-primary"
+            style={{ padding: '14px', fontSize: '16px', width: '100%', opacity: loading ? 0.7 : 1 }}>
+            {loading ? 'Generating...' : 'Generate Proposal '}
           </button>
         </div>
 
@@ -92,7 +97,7 @@ Looking forward to hearing from you!`)
             <button onClick={() => navigator.clipboard.writeText(proposal)} style={{ marginTop: '20px', width: '100%', padding: '14px', border: '2px solid rgba(243,159,90,0.4)', color: '#F39F5A', borderRadius: '12px', fontWeight: 600, fontSize: '15px', background: 'transparent', cursor: 'pointer', transition: 'all 0.2s' }}
               onMouseEnter={e => e.currentTarget.style.background = 'rgba(243,159,90,0.1)'}
               onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-              Copy Proposal 📋
+              Copy Proposal 
             </button>
           </div>
         )}
