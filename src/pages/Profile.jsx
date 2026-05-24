@@ -35,7 +35,7 @@ function Profile() {
     }).eq('id', user.id)
     if (!error) {
   await refreshProfile()
-  const aiRes = await fetch('http://localhost:5000/api/analyze', {
+ const aiRes = await fetch('https://gigready-production.up.railway.app/api/analyze', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

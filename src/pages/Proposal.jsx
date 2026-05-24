@@ -13,7 +13,7 @@ function Proposal() {
   const handleGenerate = async () => {
     if (!jobDescription) return
     setLoading(true)
-    const res = await fetch('http://localhost:5000/api/proposal', {
+    const res = await fetch('https://gigready-production.up.railway.app/api/proposal', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ jobDescription, tone, profile, extraDetails })
